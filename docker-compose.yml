@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  # Serviço da API Python
+  api:
+    build: ./api
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./api:/app
+    environment:
+      # Passamos as variáveis do banco para o serviço da API
+      DB_HOST: db
+      MYSQL_DATABASE: api_db
+      MYSQL_USER: api_user
+      MYSQL_PASSWORD: api
+    depends_on:
+      - db
+
+  # Serviço do Frontend (usando Nginx para servir arquivos estáticos)
+  frontend:
+    image: nginx:alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - ./frontend:/usr/share/nginx/html
+
+  # Serviço do Banco de Dados MySQL
+  db:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 1010
+      MYSQL_DATABASE: api_db
+      MYSQL_USER: api_user
+      MYSQL_PASSWORD: api
+    ports:
+      - "3307:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+volumes:
+  db_data:
